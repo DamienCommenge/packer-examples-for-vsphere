@@ -5,7 +5,7 @@
 
 // Installation Operating System Metadata
 vm_inst_os_language                 = "en-US"
-vm_inst_os_keyboard                 = "en-US"
+vm_inst_os_keyboard                 = "fr-FR"
 vm_inst_os_image_standard_core      = "Windows Server 2019 SERVERSTANDARDCORE"
 vm_inst_os_image_standard_desktop   = "Windows Server 2019 SERVERSTANDARD"
 vm_inst_os_kms_key_standard         = "N69G4-B89J2-4G8F4-WWYCC-J464C"
@@ -15,7 +15,7 @@ vm_inst_os_kms_key_datacenter       = "WMDGN-G9PQG-XVVXX-R3X43-63DFG"
 
 // Guest Operating System Metadata
 vm_guest_os_language           = "en-US"
-vm_guest_os_keyboard           = "en-US"
+vm_guest_os_keyboard           = "fr-FR"
 vm_guest_os_timezone           = "UTC"
 vm_guest_os_family             = "windows"
 vm_guest_os_name               = "server"
@@ -26,7 +26,7 @@ vm_guest_os_experience_core    = "core"
 vm_guest_os_experience_desktop = "dexp"
 
 // Virtual Machine Guest Operating System Setting
-vm_guest_os_type = "windows2019srv_64Guest"
+vm_guest_os_type = "windows9Server64Guest"
 
 // Virtual Machine Hardware Settings
 vm_firmware              = "efi-secure"
@@ -43,10 +43,10 @@ vm_network_card          = "vmxnet3"
 
 // Removable Media Settings
 iso_url            = null
-iso_path           = "iso/windows/server"
-iso_file           = "en-us_windows_server_2019_updated_aug_2021_x64_dvd_a6431a28.iso"
+iso_path           = "os server/2019"
+iso_file           = "OFFICIEL_SW_DVD9_Win_Server_STD_CORE_2019_1809.18_64Bit_French_DC_STD_MLF_X22-74334.ISO"
 iso_checksum_type  = "sha256"
-iso_checksum_value = "0067AFE7FDC4E61F677BD8C35A209082AA917DF9C117527FC4B2B52A447E89BB"
+iso_checksum_value = "5F3A228B16996A6692D310D8AC390612CBF7BF80B6026AFB8C2B59206BFA0976"
 
 // Boot Settings
 vm_boot_order       = "disk,cdrom"
