@@ -28,7 +28,7 @@
                   <CreatePartition wcm:action="add">
                      <Order>1</Order>
                      <Type>Primary</Type>
-                     <Size>300</Size>
+                     <Size>550</Size>
                   </CreatePartition>
                   <!-- System partition (ESP) -->
                   <CreatePartition wcm:action="add">
@@ -106,10 +106,12 @@
             <AcceptEula>true</AcceptEula>
             <FullName>${build_username}</FullName>
             <Organization>${build_username}</Organization>
+            %{if vm_inst_os_eval != true ~}
             <ProductKey>
-               <Key>${vm_inst_os_kms_key}</Key>
+               <Key>${vm_inst_os_key}</Key>
                <WillShowUI>OnError</WillShowUI>
             </ProductKey>
+            %{ endif ~}
          </UserData>
          <EnableFirewall>false</EnableFirewall>
       </component>

@@ -1,3 +1,7 @@
+# © Broadcom. All Rights Reserved.
+# The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-2-Clause
+
 /*
     DESCRIPTION:
     Red Hat Subscription Manager credential variables used for Red Hat Enterprise Linux builds.
@@ -5,5 +9,5 @@
 */
 
 // Red Hat Subscription Manager Credentials
-rhsm_username = "rainpole"
-rhsm_password = "R@in!$aG00dThing."
+rhsm_username = "packer"
+rhsm_password = "VMw@re123!"

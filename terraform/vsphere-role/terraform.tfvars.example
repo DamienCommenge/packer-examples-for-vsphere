@@ -4,8 +4,8 @@
 
 # Credentials
 
-vsphere_server   = "sfo-m01-vc01.rainpole.io"
-vsphere_username = "svc-terraform-vsphere@rainpole.io"
+vsphere_server   = "sfo-m01-vc01.example.com"
+vsphere_username = "svc-terraform-vsphere@example.com"
 vsphere_password = "************"
 vsphere_insecure = false
 
@@ -23,6 +23,8 @@ packer_vsphere_privileges = [
   "System.View",
   "ContentLibrary.AddLibraryItem",
   "ContentLibrary.UpdateLibraryItem",
+  "Cryptographer.Access",
+  "Cryptographer.Encrypt",
   "Datastore.AllocateSpace",
   "Datastore.Browse",
   "Datastore.FileManagement",
@@ -35,6 +37,7 @@ packer_vsphere_privileges = [
   "VirtualMachine.Config.AdvancedConfig",
   "VirtualMachine.Config.Annotation",
   "VirtualMachine.Config.CPUCount",
+  "VirtualMachine.Config.EditDevice",
   "VirtualMachine.Config.Memory",
   "VirtualMachine.Config.Resource",
   "VirtualMachine.Config.Settings",

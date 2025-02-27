@@ -4,8 +4,8 @@
 
 # Credentials
 
-vsphere_server   = "sfo-w01-vc01.rainpole.io"
-vsphere_username = "svc-terraform-vsphere@rainpole.io"
+vsphere_server   = "sfo-w01-vc01.example.com"
+vsphere_username = "svc-terraform-vsphere@example.com"
 vsphere_password = "************"
 vsphere_insecure = false
 
@@ -19,7 +19,7 @@ vsphere_network    = "w01-172.16.100.0"
 
 # HCP Packer Settings
 
-hcp_packer_bucket_name = "linux-ubuntu-2204lts"
+hcp_packer_bucket_name = "linux-ubuntu-2204-lts"
 hcp_packer_channel     = "stable"
 
 # Virtual Machines Settings

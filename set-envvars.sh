@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# © Broadcom. All Rights Reserved.
+# The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-2-Clause
 
 # This script allows you to set the environment variables on the system for use by Packer instead of using cleartext.
 
 # Defaults
 
 vsphere_insecure_connection="false"
+vsphere_set_host_for_datastore_uploads="false"
 common_vm_version="19"
 common_tools_upgrade_policy="true"
 common_remove_cdrom="true"
@@ -24,12 +23,64 @@ common_http_ip=""
 common_http_port_min="8000"
 common_http_port_max="8099"
 common_ip_wait_timeout="20m"
+common_ip_settle_timeout="5s"
 common_shutdown_timeout="15m"
 communicator_proxy_host=""
 communicator_proxy_port=""
 communicator_proxy_username=""
 communicator_proxy_password=""
 ansible_username="ansible"
+
+# Packer Logging
+while true; do
+    read -r -p "Enable logging for Packer? (y/n): " enable_logging_input
+    case $enable_logging_input in
+    [yY][eE][sS] | [yY])
+        enable_logging=true
+        while true; do
+            read -r -p "Enable log to file? (y/n): " enable_log_path_input
+            case $enable_log_path_input in
+            [yY][eE][sS] | [yY])
+                enable_log_path=true
+                while true; do
+                    read -r -p "Enter the log path (e.g. /tmp/packer/): " log_dir_input
+                    if [[ -n "$log_dir_input" ]]; then
+                        if test -d "$log_dir_input"; then
+                            log_dir="$log_dir_input"
+                            break
+                        else
+                            echo -e "\n> Invalid input; path does not exist."
+                        fi
+                    else
+                        unset -v log_dir
+                        break
+                    fi
+                done
+                break
+                ;;
+            [nN][oO] | [nN])
+                unset -v enable_log_path
+                unset -v log_dir
+                break
+                ;;
+            *)
+                echo -e "\n> Invalid input; please enter 'y' or 'n'."
+                ;;
+            esac
+        done
+        break
+        ;;
+    [nN][oO] | [nN])
+        unset -v enable_logging
+        unset -v PACKER_LOG
+        unset -v PACKER_LOG_PATH
+        break
+        ;;
+    *)
+        echo -e "\n> Invalid input; please enter 'y' or 'n'."
+        ;;
+    esac
+done
 
 # vSphere Credentials
 echo -e '\n> Set the vSphere credentials.'
@@ -54,9 +105,12 @@ esac
 echo -e '\n> Set the vSphere settings.'
 read -r -p "Enter the vSphere datacenter name: " vsphere_datacenter
 read -r -p "Enter the vSphere cluster name: " vsphere_cluster
+read -r -p "Enter the ESXi host FQDN or IP: " vsphere_host
 read -r -p "Enter the datastore name virtual machines: " vsphere_datastore
 read -r -p "Enter the network name: " vsphere_network
 read -r -p "Enter the folder name: " vsphere_folder
+read -r -p "Enter the resource pool name: " vsphere_resource_pool
+read -r -p "Set the host for datastore uploads (recommended: ""${vsphere_set_host_for_datastore_uploads}""): " vsphere_set_host_for_datastore_uploads
 read -r -p "Enter the content library name: " common_content_library_name
 read -r -p "Enter the datastore name for .iso files: " common_iso_datastore
 
@@ -82,6 +136,7 @@ read -r -p "Enter the IP address of the interface on this host: " common_http_ip
 read -r -p "Enter the starting HTTP port (recommended: ""${common_http_port_min}""): " common_http_port_min
 read -r -p "Enter the ending HTTP port (recommended: ""${common_http_port_max}""): " common_http_port_max
 read -r -p "Enter the IP wait timeout (recommended: ""${common_ip_wait_timeout}""): " common_ip_wait_timeout
+read -r -p "Enter the IP settle timeout (recommended: ""${common_ip_settle_timeout}""): " common_ip_settle_timeout
 read -r -p "Enter the virtual machine shutdown timeout (recommended: ""${common_shutdown_timeout}""): " common_shutdown_timeout
 
 # Proxy Credentials
@@ -136,6 +191,24 @@ echo -e '\n> Set the HCP Packer registry.'
 read -r -p "Enable the HCP Packer registry: " common_hcp_packer_registry_enabled
 echo # Needed for line break.
 
+# Packer Logging
+echo -e '\n> Set the Packer logging.'
+if [[ $enable_logging == true ]]; then
+    export PACKER_LOG=1
+    if [[ $enable_log_path == true ]]; then
+        if [[ -n "$log_dir" ]]; then
+            export PACKER_LOG_PATH="${log_dir}/packer.log"
+        else
+            unset -v PACKER_LOG_PATH
+        fi
+    else
+        unset -v PACKER_LOG_PATH
+    fi
+else
+    unset -v PACKER_LOG
+    unset -v PACKER_LOG_PATH
+fi
+
 echo -e '\n> Setting the vSphere credentials...'
 # vSphere Credentials
 export PKR_VAR_vsphere_endpoint="${vsphere_endpoint}"
@@ -147,9 +220,12 @@ echo '> Setting the vSphere settings...'
 # vSphere Settings
 export PKR_VAR_vsphere_datacenter="${vsphere_datacenter}"
 export PKR_VAR_vsphere_cluster="${vsphere_cluster}"
+export PKR_VAR_vsphere_host="${vsphere_host}"
 export PKR_VAR_vsphere_datastore="${vsphere_datastore}"
 export PKR_VAR_vsphere_network="${vsphere_network}"
 export PKR_VAR_vsphere_folder="${vsphere_folder}"
+export PKR_VAR_vsphere_resource_pool="${vsphere_resource_pool}"
+export PKR_VAR_vsphere_set_host_for_datastore_uploads="${vsphere_set_host_for_datastore_uploads}"
 export PKR_VAR_common_content_library_name="${common_content_library_name}"
 export PKR_VAR_common_iso_datastore="${common_iso_datastore}"
 
@@ -178,6 +254,7 @@ export PKR_VAR_common_http_ip="${common_http_ip}"
 export PKR_VAR_common_http_port_min="${common_http_port_min}"
 export PKR_VAR_common_http_port_max="${common_http_port_max}"
 export PKR_VAR_common_ip_wait_timeout="${common_ip_wait_timeout}"
+export PKR_VAR_common_ip_settle_timeout="${common_ip_settle_timeout}"
 export PKR_VAR_common_shutdown_timeout="${common_shutdown_timeout}"
 
 # Proxy Credentials
@@ -227,6 +304,12 @@ echo
 read -r -p "Display the environment variables? (y/n): " display_environmental_variables
 case $display_environmental_variables in
 [yY][eE][sS] | [yY])
+
+	# Packer Logging
+    echo -e '\nPacker Logging'
+    echo - PACKER_LOG: "$PACKER_LOG"
+    echo - PACKER_LOG_PATH: "$PACKER_LOG_PATH"
+
 	# vSphere Credentials
 	echo -e '\nvSphere Credentials'
 	echo - PKR_VAR_vsphere_endpoint: "$PKR_VAR_vsphere_endpoint"
@@ -238,9 +321,12 @@ case $display_environmental_variables in
 	echo -e '\nvSphere Settings'
 	echo - PKR_VAR_vsphere_datacenter: "$PKR_VAR_vsphere_datacenter"
 	echo - PKR_VAR_vsphere_cluster: "$PKR_VAR_vsphere_cluster"
+	echo - PKR_VAR_vsphere_host: "$PKR_VAR_vsphere_host"
 	echo - PKR_VAR_vsphere_datastore: "$PKR_VAR_vsphere_datastore"
 	echo - PKR_VAR_vsphere_network: "$PKR_VAR_vsphere_network"
 	echo - PKR_VAR_vsphere_folder: "$PKR_VAR_vsphere_folder"
+	echo - PKR_VAR_vsphere_resource_pool: "$PKR_VAR_vsphere_resource_pool"
+	echo - PKR_VAR_vsphere_set_host_for_datastore_uploads: "$PKR_VAR_vsphere_set_host_for_datastore_uploads"
 	echo - PKR_VAR_common_content_library_name: "$PKR_VAR_common_content_library_name"
 	echo - PKR_VAR_common_iso_datastore: "$PKR_VAR_common_iso_datastore"
 
@@ -269,6 +355,7 @@ case $display_environmental_variables in
 	echo - PKR_VAR_common_http_port_min: "$PKR_VAR_common_http_port_min"
 	echo - PKR_VAR_common_http_port_max: "$PKR_VAR_common_http_port_max"
 	echo - PKR_VAR_common_ip_wait_timeout: "$PKR_VAR_common_ip_wait_timeout"
+	echo - PKR_VAR_common_ip_settle_timeout: "$PKR_VAR_common_ip_settle_timeout"
 	echo - PKR_VAR_common_shutdown_timeout: "$PKR_VAR_common_shutdown_timeout"
 
 	# Proxy Credentials

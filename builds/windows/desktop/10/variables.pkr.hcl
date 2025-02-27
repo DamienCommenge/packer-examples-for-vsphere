@@ -1,6 +1,11 @@
+# © Broadcom. All Rights Reserved.
+# The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-2-Clause
+
 /*
     DESCRIPTION:
-    Microsoft Windows 10 variables using the Packer Builder for VMware vSphere (vsphere-iso).
+    Microsoft Windows 10 input variables.
+    Packer Plugin for VMware vSphere: 'vsphere-iso' builder.
 */
 
 //  BLOCK: variable
@@ -10,12 +15,12 @@
 
 variable "vsphere_endpoint" {
   type        = string
-  description = "The fully qualified domain name or IP address of the vCenter Server instance. (e.g. 'sfo-w01-vc01.sfo.rainpole.io')"
+  description = "The fully qualified domain name or IP address of the vCenter Server instance."
 }
 
 variable "vsphere_username" {
   type        = string
-  description = "The username to login to the vCenter Server instance. (e.g. 'svc-packer-vsphere@rainpole.io')"
+  description = "The username to login to the vCenter Server instance."
   sensitive   = true
 }
 
@@ -34,27 +39,48 @@ variable "vsphere_insecure_connection" {
 
 variable "vsphere_datacenter" {
   type        = string
-  description = "The name of the target vSphere datacenter. (e.g. 'sfo-w01-dc01')"
+  description = "The name of the target vSphere datacenter."
+  default     = ""
 }
 
 variable "vsphere_cluster" {
   type        = string
-  description = "The name of the target vSphere cluster. (e.g. 'sfo-w01-cl01')"
+  description = "The name of the target vSphere cluster."
+  default     = ""
+}
+
+variable "vsphere_host" {
+  type        = string
+  description = "The name of the target ESXi host."
+  default     = ""
 }
 
 variable "vsphere_datastore" {
   type        = string
-  description = "The name of the target vSphere datastore. (e.g. 'sfo-w01-cl01-vsan01')"
+  description = "The name of the target vSphere datastore."
 }
 
 variable "vsphere_network" {
   type        = string
-  description = "The name of the target vSphere network segment. (e.g. 'sfo-w01-dhcp')"
+  description = "The name of the target vSphere network segment."
 }
 
 variable "vsphere_folder" {
   type        = string
-  description = "The name of the target vSphere cluster. (e.g. 'sfo-w01-fd-templates')"
+  description = "The name of the target vSphere folder."
+  default     = ""
+}
+
+variable "vsphere_resource_pool" {
+  type        = string
+  description = "The name of the target vSphere resource pool."
+  default     = ""
+}
+
+variable "vsphere_set_host_for_datastore_uploads" {
+  type        = bool
+  description = "Set this to true if packer should use the host for uploading files to the datastore."
+  default     = false
 }
 
 // Installer Settings
@@ -71,14 +97,31 @@ variable "vm_inst_os_keyboard" {
   default     = "en-US"
 }
 
-variable "vm_inst_os_image" {
-  type        = string
-  description = "The installation operating system image input."
+variable "vm_inst_os_eval" {
+  type        = bool
+  description = "Build using the operating system evaluation. Set to false for Professional Edition."
+  default     = true
 }
 
-variable "vm_inst_os_kms_key" {
+variable "vm_inst_os_image_pro" {
   type        = string
-  description = "The installation operating system KMS key input."
+  description = "The installation operating system image input. Does not support evaluation."
+  default     = "Windows 10 Pro"
+}
+
+variable "vm_inst_os_image_ent" {
+  type        = string
+  description = "The installation operating system image input. Does support evaluation."
+  default     = "Windows 10 Enterprise"
+}
+
+variable "vm_inst_os_key_pro" {
+  type        = string
+  description = "The installation operating system key input."
+}
+variable "vm_inst_os_key_ent" {
+  type        = string
+  description = "The installation operating system key input."
 }
 
 // Virtual Machine Settings
@@ -103,74 +146,96 @@ variable "vm_guest_os_timezone" {
 
 variable "vm_guest_os_family" {
   type        = string
-  description = "The guest operating system family. Used for naming and VMware tools. (e.g.'windows')"
+  description = "The guest operating system family. Used for naming and VMware Tools."
+  default     = "windows"
 }
 
 variable "vm_guest_os_name" {
   type        = string
-  description = "The guest operating system name. Used for naming . (e.g. 'desktop')"
+  description = "The guest operating system name. Used for naming."
+  default     = "desktop"
 }
 
 variable "vm_guest_os_version" {
   type        = string
-  description = "The guest operating system version. Used for naming. (e.g. '10')"
+  description = "The guest operating system version. Used for naming."
+  default     = "10"
 }
 
-variable "vm_guest_os_edition" {
+variable "vm_guest_os_edition_pro" {
   type        = string
-  description = "The guest operating system edition. Used for naming. (e.g. 'pro')"
+  description = "The guest operating system edition. Used for naming."
+  default     = "pro"
+}
+
+variable "vm_guest_os_edition_ent" {
+  type        = string
+  description = "The guest operating system edition. Used for naming."
+  default     = "ent"
 }
 
 variable "vm_guest_os_type" {
   type        = string
-  description = "The guest operating system type, also know as guestid. (e.g. 'windows9_64Guest')"
+  description = "The guest operating system type, also know as guestid."
 }
 
 variable "vm_firmware" {
   type        = string
-  description = "The virtual machine firmware. (e.g. 'efi-secure'. 'efi', or 'bios')"
+  description = "The virtual machine firmware."
   default     = "efi-secure"
 }
 
 variable "vm_cdrom_type" {
   type        = string
-  description = "The virtual machine CD-ROM type. (e.g. 'sata', or 'ide')"
+  description = "The virtual machine CD-ROM type."
   default     = "sata"
+}
+
+variable "vm_cdrom_count" {
+  type        = string
+  description = "The number of virtual CD-ROMs remaining after the build."
+  default     = 1
 }
 
 variable "vm_cpu_count" {
   type        = number
-  description = "The number of virtual CPUs. (e.g. '2')"
+  description = "The number of virtual CPUs."
+  default     = 2
 }
 
 variable "vm_cpu_cores" {
   type        = number
-  description = "The number of virtual CPUs cores per socket. (e.g. '1')"
+  description = "The number of virtual CPUs cores per socket."
+  default     = 2
 }
 
 variable "vm_cpu_hot_add" {
   type        = bool
   description = "Enable hot add CPU."
+  default     = false
 }
 
 variable "vm_mem_size" {
   type        = number
-  description = "The size for the virtual memory in MB. (e.g. '2048')"
+  description = "The size for the virtual memory in MB."
+  default     = 4096
 }
 
 variable "vm_mem_hot_add" {
   type        = bool
   description = "Enable hot add memory."
+  default     = false
 }
 
 variable "vm_disk_size" {
   type        = number
-  description = "The size for the virtual disk in MB. (e.g. '40960')"
+  description = "The size for the virtual disk in MB."
+  default     = 102400
 }
 
 variable "vm_disk_controller_type" {
   type        = list(string)
-  description = "The virtual disk controller types in sequence. (e.g. 'pvscsi')"
+  description = "The virtual disk controller types in sequence."
   default     = ["pvscsi"]
 }
 
@@ -182,25 +247,25 @@ variable "vm_disk_thin_provisioned" {
 
 variable "vm_network_card" {
   type        = string
-  description = "The virtual network card type. (e.g. 'vmxnet3' or 'e1000e')"
+  description = "The virtual network card type."
   default     = "vmxnet3"
 }
 
-variable "vm_video_mem_size" {
+variable "vm_video_ram" {
   type        = number
-  description = "The size for the video memory in KB. (e.g. 4096)"
+  description = "The size for the video memory in KB."
   default     = 4096
 }
 
 variable "vm_video_displays" {
   type        = number
-  description = "The number of video displays. (e.g. 1)"
+  description = "The number of video displays."
   default     = 1
 }
 
 variable "common_vm_version" {
   type        = number
-  description = "The vSphere virtual hardware version. (e.g. '19')"
+  description = "The vSphere virtual hardware version."
 }
 
 variable "common_tools_upgrade_policy" {
@@ -223,9 +288,15 @@ variable "common_template_conversion" {
   default     = false
 }
 
-variable "common_content_library_name" {
+variable "common_content_library_enabled" {
+  type        = bool
+  description = "Import the virtual machine into the vSphere content library."
+  default     = true
+}
+
+variable "common_content_library" {
   type        = string
-  description = "The name of the target vSphere content library, if used. (e.g. 'sfo-w01-cl01-lib01')"
+  description = "The name of the target vSphere content library, if enabled."
   default     = null
 }
 
@@ -243,7 +314,7 @@ variable "common_content_library_destroy" {
 
 variable "common_content_library_skip_export" {
   type        = bool
-  description = "Skip exporting the virtual machine to the content library. Option allows for testing / debugging without saving the machine image."
+  description = "Skip exporting the virtual machine to the content library. Option allows for testing/debugging without saving the machine image."
   default     = false
 }
 
@@ -263,41 +334,42 @@ variable "common_ovf_export_overwrite" {
 
 // Removable Media Settings
 
+variable "common_iso_content_library_enabled" {
+  type        = bool
+  description = "Import the guest operating system ISO into the vSphere content library."
+  default     = false
+}
+
+variable "common_iso_content_library" {
+  type        = string
+  description = "The name of the target vSphere content library for the guest operating system ISO."
+}
+
 variable "common_iso_datastore" {
   type        = string
-  description = "The name of the source vSphere datastore for ISO images. (e.g. 'sfo-w01-cl01-nfs01')"
+  description = "The name of the target vSphere datastore for the guest operating system ISO."
 }
 
-variable "iso_url" {
+variable "iso_datastore_path" {
   type        = string
-  description = "The URL source of the ISO image. (e.g. 'https://artifactory.rainpole.io/.../os.iso')"
-}
-
-variable "iso_path" {
-  type        = string
-  description = "The path on the source vSphere datastore for ISO image. (e.g. 'iso/windows')"
+  description = "The path on the source vSphere datastore for the guest operating system ISO."
 }
 
 variable "iso_file" {
   type        = string
-  description = "The file name of the ISO image used by the vendor. (e.g. '<langauge>_windows_<version>_business_editions_version_<YYhx<_updated_<month_year>_x64_dvd_<string>.iso')"
+  description = "The file name of the guest operating system ISO."
 }
 
-variable "iso_checksum_type" {
+variable "iso_content_library_item" {
   type        = string
-  description = "The checksum algorithm used by the vendor. (e.g. 'sha256')"
-}
-
-variable "iso_checksum_value" {
-  type        = string
-  description = "The checksum value provided by the vendor."
+  description = "The vSphere content library item name for the guest operating system ISO."
 }
 
 // Boot Settings
 
 variable "common_data_source" {
   type        = string
-  description = "The provisioning data source. (e.g. 'http' or 'disk')"
+  description = "The provisioning data source. One of `http` or `disk`."
 }
 
 variable "common_http_ip" {
@@ -318,29 +390,37 @@ variable "common_http_port_max" {
 
 variable "vm_boot_order" {
   type        = string
-  description = "The boot order for virtual machines devices. (e.g. 'disk,cdrom')"
+  description = "The boot order for virtual machines devices."
   default     = "disk,cdrom"
 }
 
 variable "vm_boot_wait" {
   type        = string
   description = "The time to wait before boot."
+  default     = "2s"
 }
 
 variable "vm_boot_command" {
   type        = list(string)
   description = "The virtual machine boot command."
-  default     = []
+  default     = ["<spacebar>"]
 }
 
 variable "vm_shutdown_command" {
   type        = string
   description = "Command(s) for guest operating system shutdown."
+  default     = "shutdown /s /t 10 /f /d p:4:1 /c \"Shutdown by Packer\""
 }
 
 variable "common_ip_wait_timeout" {
   type        = string
   description = "Time to wait for guest operating system IP address response."
+}
+
+variable "common_ip_settle_timeout" {
+  type        = string
+  description = "Time to wait for guest operating system IP to settle down."
+  default     = "5s"
 }
 
 variable "common_shutdown_timeout" {
@@ -352,7 +432,7 @@ variable "common_shutdown_timeout" {
 
 variable "build_username" {
   type        = string
-  description = "The username to login to the guest operating system. (e.g. 'rainpole')"
+  description = "The username to login to the guest operating system."
   sensitive   = true
 }
 
@@ -379,13 +459,29 @@ variable "build_key" {
 // Communicator Credentials
 
 variable "communicator_port" {
-  type        = string
+  type        = number
   description = "The port for the communicator protocol."
+  default     = 5985
 }
 
 variable "communicator_timeout" {
   type        = string
   description = "The timeout for the communicator protocol."
+  default     = "12h"
+}
+
+// Ansible Credentials
+
+variable "ansible_username" {
+  type        = string
+  description = "The username for Ansible to login to the guest operating system."
+  sensitive   = true
+}
+
+variable "ansible_key" {
+  type        = string
+  description = "The public key for Ansible to login to the guest operating system."
+  sensitive   = true
 }
 
 // Provisioner Settings
